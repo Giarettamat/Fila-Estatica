@@ -1,45 +1,60 @@
-import java.util.LinkedList;
-import java.util.Queue;
+public class MAIN<T> {
+    private int top = -1;
+    private int base = 0;
+    private T[] data;
+    private int size;
 
-public class MAIN {
-    private Queue<Integer> queue;
-    private int maxSize;
-
+    @SuppressWarnings("unchecked")
     public MAIN(int size) {
-        this.queue = new LinkedList<>();
-        this.maxSize = size;
+        this.size = size;
+        data = (T[]) new Object[size];
     }
 
-    public void add(int item) {
-        if (queue.size() == maxSize) {
+    public void add(T item) {
+        if (isFull()) {
             throw new IllegalStateException("Queue is full");
         }
-        queue.add(item);
+        top = move(top);
+        data[top] = item;
     }
 
-    public int remove() {
-        if (queue.isEmpty()) {
+    public T remove() {
+        if (isEmpty()) {
             throw new IllegalStateException("Queue is empty");
         }
-        return queue.poll();
+        T item = data[base];
+        base = move(base);
+
+        // Caso a fila fique vazia após a remoção, resetamos top e base
+        if (base == move(top)) {
+            top = -1;
+            base = 0;
+        }
+
+        return item;
     }
 
     public void clear() {
-        queue.clear();
+        top = -1;
+        base = 0;
+        data = (T[]) new Object[size];
     }
 
     public boolean isFull() {
-        return queue.size() == maxSize;
+        return move(top) == base && data[base] != null;
     }
 
     public boolean isEmpty() {
-        return queue.isEmpty();
+        return top == -1;
+    }
+
+    private int move(int position) {
+        return (position + 1) % size;
     }
 
     public static void main(String[] args) {
-        // Exemplo de uso
-        MAIN queue = new MAIN(5);
-        
+        MAIN<Integer> queue = new MAIN<>(5);
+
         queue.add(1);
         queue.add(2);
         queue.add(3);
